@@ -396,6 +396,38 @@
     {
       return $this->send_request('Events', array('EventMask'=>$eventmask));
     }
+    
+    /**
+     *	Generate random ActionID
+     **/
+    function ActionID()
+    {
+      return "A".sprintf(rand(),"%6d");
+    }
+    
+    /**
+     *
+     *	DBGet
+     *	http://www.voip-info.org/wiki/index.php?page=Asterisk+Manager+API+Action+DBGet
+     *	@param string	$family	key family
+     *	@param string	$key	key name
+     **/
+    function DBGet($family, $key, $actionid = NULL)
+    {
+      $parameters = array('Family'=>$family, 'Key'=>$key);
+      if($actionid == NULL)
+      {
+        $actionid = $this->ActionID();
+      }
+      $parameters['ActionID'] = $actionid;
+      $response = $this->send_request("DBGet", $parameters);
+      if($response['Response'] == "Success")
+      {
+        $response = $this->wait_response(false, $actionid);
+        return $response['Val'];
+      }
+      return "";
+    }
 
    /**
     * Check Extension Status
